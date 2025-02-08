@@ -62,17 +62,37 @@
     <h2>Gestion des Réservations</h2>
     
     <form id="reservationForm">
+        <label for="name">Nom :</label>
+        <input type="text" id="name" required>
+        
         <label for="tableNumber">Table :</label>
-        <input type="number" id="tableNumber" min="1" max="20" required>
+        <select id="tableNumber" required>
+            <option value="">Sélectionner</option>
+            <script>
+                for (let i = 1; i <= 20; i++) {
+                    document.write(`<option value="${i}">${i}</option>`);
+                }
+            </script>
+        </select>
         
         <label for="people">Personnes :</label>
-        <input type="number" id="people" min="1" max="20" required>
+        <select id="people" required>
+            <option value="">Sélectionner</option>
+            <script>
+                for (let i = 1; i <= 20; i++) {
+                    document.write(`<option value="${i}">${i}</option>`);
+                }
+            </script>
+        </select>
         
         <label for="time">Horaire :</label>
         <input type="time" id="time" required>
         
         <label for="deposit">Acompte (€) :</label>
         <input type="number" id="deposit" required>
+        
+        <label for="note">Note :</label>
+        <textarea id="note"></textarea>
         
         <label for="status">Statut :</label>
         <select id="status">
@@ -89,7 +109,7 @@
     <div id="reservations"></div>
 
     <script>
-        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0 }));
+        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0, note: "" }));
 
         function renderTables() {
             const container = document.getElementById("tables");
@@ -107,48 +127,20 @@
             let table = tablesData.find(t => t.number === tableNumber);
             if (table) {
                 document.getElementById("tableNumber").value = table.number;
+                document.getElementById("name").value = table.name;
                 document.getElementById("people").value = table.people;
                 document.getElementById("time").value = table.time;
                 document.getElementById("deposit").value = table.deposit;
+                document.getElementById("note").value = table.note;
                 document.getElementById("status").value = table.status;
             }
         }
 
         function resetReservations() {
-            tablesData = Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0 }));
+            tablesData = Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0, note: "" }));
             localStorage.setItem("tablesData", JSON.stringify(tablesData));
             renderTables();
             updateReservations();
-        }
-
-        document.getElementById("reservationForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            const tableNumber = parseInt(document.getElementById("tableNumber").value);
-            const time = document.getElementById("time").value;
-            const people = parseInt(document.getElementById("people").value);
-            const deposit = parseFloat(document.getElementById("deposit").value);
-            const status = document.getElementById("status").value;
-
-            let table = tablesData.find(t => t.number === tableNumber);
-            if (table) {
-                table.time = time;
-                table.people = people;
-                table.deposit = deposit;
-                table.status = status;
-                localStorage.setItem("tablesData", JSON.stringify(tablesData));
-                renderTables();
-                updateReservations();
-            }
-        });
-
-        function updateReservations() {
-            const container = document.getElementById("reservations");
-            container.innerHTML = "<h2>Réservations</h2>";
-            tablesData.filter(t => t.status !== "L").sort((a, b) => a.number - b.number).forEach(table => {
-                const div = document.createElement("div");
-                div.innerHTML = `Table ${table.number} - ${table.people} pers - ${table.time} - ${table.deposit}€`;
-                container.appendChild(div);
-            });
         }
 
         window.addEventListener("load", renderTables);
