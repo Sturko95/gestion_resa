@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Réservations</title>
+    <title>L'ALCHIMISTE - Gestion des Réservations</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 10px; }
+        h1 { font-size: 24px; font-weight: bold; }
         .table-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
             margin-top: 20px;
         }
@@ -27,6 +28,8 @@
             border: 2px solid black;
             text-align: center;
             font-size: 0.8rem;
+            overflow: hidden;
+            word-wrap: break-word;
         }
         .reserved { background-color: red; }
         .pending { background-color: orange; }
@@ -46,7 +49,6 @@
             font-size: 1rem; 
             width: 100%;
         }
-        .icon { width: 20px; height: 20px; }
         @media (max-width: 768px) {
             .table-container { grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); }
             .table { width: 60px; height: 60px; font-size: 0.7rem; }
@@ -55,13 +57,13 @@
     </style>
 </head>
 <body>
-
-    <h1>Gestion des Réservations</h1>
-
+    <h1>L'ALCHIMISTE</h1>
+    <h2>Gestion des Réservations</h2>
+    
     <form id="reservationForm">
         <input type="text" id="name" placeholder="Nom du client" required>
-        <input type="number" id="tableNumber" placeholder="Table" min="1" max="20" required inputmode="numeric">
-        <img src="person-icon.png" class="icon"> <input type="number" id="people" min="1" required inputmode="numeric">
+        <input type="number" id="tableNumber" placeholder="Numéro de Table" min="1" max="20" required inputmode="numeric">
+        <input type="number" id="people" placeholder="Nombre de Personnes" min="1" required inputmode="numeric">
         <input type="time" id="time" step="900" required>
         <input type="number" id="deposit" placeholder="Acompte (€)" required inputmode="numeric">
         <select id="status">
@@ -76,7 +78,7 @@
     <div id="reservations"></div>
 
     <script>
-        let tablesData = Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0 }));
+        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0 }));
 
         function renderTables() {
             const container = document.getElementById("tables");
@@ -110,6 +112,7 @@
                 table.people = people;
                 table.deposit = deposit;
                 table.status = status;
+                localStorage.setItem("tablesData", JSON.stringify(tablesData));
                 renderTables();
                 updateReservations();
             }
@@ -125,7 +128,7 @@
             });
         }
 
-        renderTables();
+        window.addEventListener("load", renderTables);
     </script>
 </body>
 </html>
