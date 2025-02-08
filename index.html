@@ -62,16 +62,25 @@
     <h2>Gestion des Réservations</h2>
     
     <form id="reservationForm">
-        <input type="text" id="name" placeholder="Nom du client" required>
-        <input type="number" id="tableNumber" placeholder="Numéro de Table" min="1" max="20" required inputmode="numeric">
-        <input type="number" id="people" placeholder="Nombre de Personnes" min="1" required inputmode="numeric">
-        <input type="time" id="time" step="900" required>
-        <input type="number" id="deposit" placeholder="Acompte (€)" required inputmode="numeric">
+        <label for="tableNumber">Table :</label>
+        <input type="number" id="tableNumber" min="1" max="20" required>
+        
+        <label for="people">Personnes :</label>
+        <input type="number" id="people" min="1" max="20" required>
+        
+        <label for="time">Horaire :</label>
+        <input type="time" id="time" required>
+        
+        <label for="deposit">Acompte (€) :</label>
+        <input type="number" id="deposit" required>
+        
+        <label for="status">Statut :</label>
         <select id="status">
             <option value="R">Réservé</option>
             <option value="Att">Attente</option>
             <option value="L">Libre</option>
         </select>
+        
         <button type="submit">Ajouter</button>
         <button type="button" class="reset-btn" onclick="resetReservations()">Reset All</button>
     </form>
@@ -98,7 +107,6 @@
             let table = tablesData.find(t => t.number === tableNumber);
             if (table) {
                 document.getElementById("tableNumber").value = table.number;
-                document.getElementById("name").value = table.name;
                 document.getElementById("people").value = table.people;
                 document.getElementById("time").value = table.time;
                 document.getElementById("deposit").value = table.deposit;
@@ -115,7 +123,6 @@
 
         document.getElementById("reservationForm").addEventListener("submit", function(event) {
             event.preventDefault();
-            const name = document.getElementById("name").value;
             const tableNumber = parseInt(document.getElementById("tableNumber").value);
             const time = document.getElementById("time").value;
             const people = parseInt(document.getElementById("people").value);
@@ -124,7 +131,6 @@
 
             let table = tablesData.find(t => t.number === tableNumber);
             if (table) {
-                table.name = name;
                 table.time = time;
                 table.people = people;
                 table.deposit = deposit;
@@ -140,7 +146,7 @@
             container.innerHTML = "<h2>Réservations</h2>";
             tablesData.filter(t => t.status !== "L").sort((a, b) => a.number - b.number).forEach(table => {
                 const div = document.createElement("div");
-                div.innerHTML = `Table ${table.number} - ${table.name} - ${table.people} pers - ${table.time} - ${table.deposit}€`;
+                div.innerHTML = `Table ${table.number} - ${table.people} pers - ${table.time} - ${table.deposit}€`;
                 container.appendChild(div);
             });
         }
