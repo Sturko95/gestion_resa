@@ -94,6 +94,18 @@
             });
         }
 
+        function selectTable(tableNumber) {
+            let table = tablesData.find(t => t.number === tableNumber);
+            if (table) {
+                document.getElementById("tableNumber").value = table.number;
+                document.getElementById("name").value = table.name;
+                document.getElementById("people").value = table.people;
+                document.getElementById("time").value = table.time;
+                document.getElementById("deposit").value = table.deposit;
+                document.getElementById("status").value = table.status;
+            }
+        }
+
         function resetReservations() {
             tablesData = Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0 }));
             localStorage.setItem("tablesData", JSON.stringify(tablesData));
