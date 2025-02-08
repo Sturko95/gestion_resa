@@ -5,39 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Réservations</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        .table-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .table {
-            width: 100px;
-            height: 100px;
-            margin: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-        }
-        .reserved { background-color: red; }
-        .pending { background-color: orange; }
-        .free { background-color: green; }
-        form {
-            margin-top: 20px;
-        }
-        input, select, button {
-            margin: 5px;
-            padding: 10px;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .table-container { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+        .table { width: 120px; height: 120px; margin: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold; color: white; cursor: pointer; border: 2px solid black; }
+        .reserved { background-color: red; } .pending { background-color: orange; } .free { background-color: green; }
+        form { margin-top: 20px; } input, select, button { margin: 5px; padding: 10px; }
     </style>
 </head>
 <body>
@@ -49,24 +21,25 @@
         <input type="number" id="tableNumber" placeholder="Numéro de table" min="1" max="6" required>
         <input type="number" id="people" placeholder="Nombre de personnes" required>
         <input type="time" id="time" required>
+        <input type="number" id="deposit" placeholder="Acompte (en €)" required>
         <select id="status">
             <option value="R">Réservé</option>
             <option value="Att">Attente</option>
             <option value="L">Libre</option>
         </select>
-        <button type="submit" id="addReservation">Ajouter</button>
+        <button type="submit">Ajouter</button>
     </form>
 
     <div class="table-container" id="tables"></div>
 
     <script>
         let tablesData = [
-            { number: 1, capacity: 4, status: "L", name: "", time: "", people: 0 },
-            { number: 2, capacity: 4, status: "L", name: "", time: "", people: 0 },
-            { number: 3, capacity: 4, status: "L", name: "", time: "", people: 0 },
-            { number: 4, capacity: 2, status: "L", name: "", time: "", people: 0 },
-            { number: 5, capacity: 2, status: "L", name: "", time: "", people: 0 },
-            { number: 6, capacity: 2, status: "L", name: "", time: "", people: 0 }
+            { number: 1, capacity: 4, status: "L", name: "", time: "", people: 0, deposit: 0 },
+            { number: 2, capacity: 4, status: "L", name: "", time: "", people: 0, deposit: 0 },
+            { number: 3, capacity: 4, status: "L", name: "", time: "", people: 0, deposit: 0 },
+            { number: 4, capacity: 2, status: "L", name: "", time: "", people: 0, deposit: 0 },
+            { number: 5, capacity: 2, status: "L", name: "", time: "", people: 0, deposit: 0 },
+            { number: 6, capacity: 2, status: "L", name: "", time: "", people: 0, deposit: 0 }
         ];
 
         function renderTables() {
@@ -75,36 +48,41 @@
             tablesData.forEach(table => {
                 const div = document.createElement("div");
                 div.className = "table " + (table.status === "R" ? "reserved" : table.status === "Att" ? "pending" : "free");
-                div.innerHTML = `Table ${table.number}<br>${table.name ? table.name + "<br>" : ""}${table.time ? table.time + "<br>" : ""}`;
+                div.innerHTML = `Table ${table.number}<br>${table.name ? table.name + "<br>" : ""}${table.time ? table.time + "<br>" : ""}${table.deposit ? table.deposit + '€' : ''}`;
+                div.onclick = () => showPaymentButton(table.number);
                 container.appendChild(div);
             });
         }
 
+        function showPaymentButton(tableNumber) {
+            const table = tablesData.find(t => t.number === tableNumber);
+            if (table && table.deposit > 0) {
+                alert(`Paiement en ligne requis pour la réservation de la table ${tableNumber} : ${table.deposit}€`);
+                window.open("https://www.paypal.com/paypalme/yourbusinessname/" + table.deposit, "_blank");
+            }
+        }
+
         document.getElementById("reservationForm").addEventListener("submit", function(event) {
             event.preventDefault();
-            
             const name = document.getElementById("name").value;
             const tableNumber = parseInt(document.getElementById("tableNumber").value);
             const time = document.getElementById("time").value;
             const people = parseInt(document.getElementById("people").value);
+            const deposit = parseFloat(document.getElementById("deposit").value);
             const status = document.getElementById("status").value;
 
-            let tableIndex = tablesData.findIndex(t => t.number === tableNumber);
-            if (tableIndex !== -1) {
-                if (people > tablesData[tableIndex].capacity) {
+            let table = tablesData.find(t => t.number === tableNumber);
+            if (table) {
+                if (people > table.capacity) {
                     alert("Cette table ne peut pas accueillir autant de personnes !");
                     return;
                 }
-                tablesData[tableIndex] = {
-                    ...tablesData[tableIndex],
-                    name,
-                    time,
-                    people,
-                    status
-                };
+                table.name = name;
+                table.time = time;
+                table.people = people;
+                table.deposit = deposit;
+                table.status = status;
                 renderTables();
-            } else {
-                alert("Numéro de table invalide !");
             }
         });
 
