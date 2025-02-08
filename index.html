@@ -5,11 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Réservations</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .table-container { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
-        .table { width: 120px; height: 120px; margin: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold; color: white; cursor: pointer; border: 2px solid black; }
-        .reserved { background-color: red; } .pending { background-color: orange; } .free { background-color: green; }
-        form { margin-top: 20px; } input, select, button { margin: 5px; padding: 10px; }
+        body { font-family: Arial, sans-serif; text-align: center; padding: 10px; }
+        .table-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .table {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            border: 2px solid black;
+        }
+        .reserved { background-color: red; }
+        .pending { background-color: orange; }
+        .free { background-color: green; }
+        form {
+            margin-top: 20px; 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 10px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        input, select, button {
+            padding: 10px; 
+            font-size: 1rem; 
+            width: 100%;
+        }
+        .icon { width: 20px; height: 20px; }
+        @media (max-width: 768px) {
+            .table-container { grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); }
+            .table { width: 60px; height: 60px; font-size: 0.8rem; }
+            input, select, button { font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
@@ -17,11 +57,10 @@
     <h1>Gestion des Réservations</h1>
 
     <form id="reservationForm">
-        <input type="text" id="name" placeholder="Nom du client" required>
-        <input type="number" id="tableNumber" placeholder="Numéro de table" min="1" max="6" required>
-        <input type="number" id="people" placeholder="Nombre de personnes" required>
-        <input type="time" id="time" required>
-        <input type="number" id="deposit" placeholder="Acompte (en €)" required>
+        <input type="number" id="tableNumber" placeholder="Table" min="1" max="20" required pattern="[0-9]*" inputmode="numeric">
+        <img src="person-icon.png" class="icon"> <input type="number" id="people" min="1" required pattern="[0-9]*" inputmode="numeric">
+        <input type="time" id="time" step="900" required>
+        <input type="number" id="deposit" placeholder="Acompte (€)" required pattern="[0-9]*" inputmode="numeric">
         <select id="status">
             <option value="R">Réservé</option>
             <option value="Att">Attente</option>
@@ -31,16 +70,10 @@
     </form>
 
     <div class="table-container" id="tables"></div>
+    <div id="reservations"></div>
 
     <script>
-        let tablesData = [
-            { number: 1, capacity: 4, status: "L", name: "", time: "", people: 0, deposit: 0 },
-            { number: 2, capacity: 4, status: "L", name: "", time: "", people: 0, deposit: 0 },
-            { number: 3, capacity: 4, status: "L", name: "", time: "", people: 0, deposit: 0 },
-            { number: 4, capacity: 2, status: "L", name: "", time: "", people: 0, deposit: 0 },
-            { number: 5, capacity: 2, status: "L", name: "", time: "", people: 0, deposit: 0 },
-            { number: 6, capacity: 2, status: "L", name: "", time: "", people: 0, deposit: 0 }
-        ];
+        let tablesData = Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0 }));
 
         function renderTables() {
             const container = document.getElementById("tables");
@@ -48,24 +81,20 @@
             tablesData.forEach(table => {
                 const div = document.createElement("div");
                 div.className = "table " + (table.status === "R" ? "reserved" : table.status === "Att" ? "pending" : "free");
-                div.innerHTML = `Table ${table.number}<br>${table.name ? table.name + "<br>" : ""}${table.time ? table.time + "<br>" : ""}${table.deposit ? table.deposit + '€' : ''}`;
-                div.onclick = () => showPaymentButton(table.number);
+                div.innerHTML = `Table ${table.number}`;
+                div.onclick = () => selectTable(table.number);
                 container.appendChild(div);
             });
         }
 
-        function showPaymentButton(tableNumber) {
-            const table = tablesData.find(t => t.number === tableNumber);
-            if (table && table.deposit > 0) {
-                alert(`Paiement en ligne requis pour la réservation de la table ${tableNumber} : ${table.deposit}€`);
-                window.open("https://www.paypal.com/paypalme/yourbusinessname/" + table.deposit, "_blank");
-            }
+        function selectTable(tableNumber) {
+            document.getElementById("tableNumber").value = tableNumber;
         }
 
         document.getElementById("reservationForm").addEventListener("submit", function(event) {
             event.preventDefault();
-            const name = document.getElementById("name").value;
             const tableNumber = parseInt(document.getElementById("tableNumber").value);
+            const name = "Réservé";
             const time = document.getElementById("time").value;
             const people = parseInt(document.getElementById("people").value);
             const deposit = parseFloat(document.getElementById("deposit").value);
@@ -73,18 +102,25 @@
 
             let table = tablesData.find(t => t.number === tableNumber);
             if (table) {
-                if (people > table.capacity) {
-                    alert("Cette table ne peut pas accueillir autant de personnes !");
-                    return;
-                }
                 table.name = name;
                 table.time = time;
                 table.people = people;
                 table.deposit = deposit;
                 table.status = status;
                 renderTables();
+                updateReservations();
             }
         });
+
+        function updateReservations() {
+            const container = document.getElementById("reservations");
+            container.innerHTML = "<h2>Réservations</h2>";
+            tablesData.filter(t => t.status !== "L").forEach(table => {
+                const div = document.createElement("div");
+                div.innerHTML = `Table ${table.number} - ${table.people} personnes - ${table.time} - ${table.deposit}€`;
+                container.appendChild(div);
+            });
+        }
 
         renderTables();
     </script>
