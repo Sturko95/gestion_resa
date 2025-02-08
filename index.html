@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>L'ALCHIMISTE - Gestion des Réservations</title>
+    <title>CHEZ GROS - COMMENT AUTORISER LI ROLATIONS</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background-color: #121212; color: white; }
+        body { font-family: Arial, sans-serif; text-align: center; padding: 10px; }
         h1 { font-size: 24px; font-weight: bold; }
         .table-container {
             display: grid;
@@ -25,7 +25,7 @@
             font-weight: bold;
             color: white;
             cursor: pointer;
-            border: 2px solid white;
+            border: 2px solid black;
             text-align: center;
             font-size: 0.8rem;
             overflow: hidden;
@@ -50,6 +50,7 @@
             width: 100%;
         }
         .filter-container { margin-top: 20px; }
+        .reset-btn { margin-top: 20px; padding: 10px 20px; font-size: 1rem; background-color: red; color: white; border: none; cursor: pointer; }
         @media (max-width: 768px) {
             .table-container { grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); }
             .table { width: 60px; height: 60px; font-size: 0.7rem; }
@@ -58,8 +59,8 @@
     </style>
 </head>
 <body>
-    <h1>L'ALCHIMISTE</h1>
-    <h2>Gestion des Réservations</h2>
+    <h1>CHEZ GROS</h1>
+    <h2>AUTORISER LI ROLATIONS</h2>
     
     <div class="filter-container">
         <label for="dateFilter">Date :</label>
@@ -77,6 +78,7 @@
         <input type="text" id="name" placeholder="Nom du client" required>
         <input type="number" id="tableNumber" placeholder="Numéro de Table" min="1" max="20" required inputmode="numeric">
         <input type="number" id="people" placeholder="Nombre de Personnes" min="1" required inputmode="numeric">
+        <input type="date" id="reservationDate" required>
         <input type="time" id="time" step="900" required>
         <input type="number" id="deposit" placeholder="Acompte (€)" required inputmode="numeric">
         <select id="status">
@@ -85,13 +87,14 @@
             <option value="L">Libre</option>
         </select>
         <button type="submit">Ajouter</button>
+        <button type="button" class="reset-btn" onclick="resetReservations()">Reset All</button>
     </form>
 
     <div class="table-container" id="tables"></div>
     <div id="reservations"></div>
 
     <script>
-        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0, date: new Date().toISOString().split('T')[0] }));
+        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || [];
 
         function renderTables() {
             const container = document.getElementById("tables");
@@ -105,24 +108,36 @@
             });
         }
 
-        function filterReservations() {
-            let date = document.getElementById("dateFilter").value;
-            let status = document.getElementById("statusFilter").value;
-            let filteredTables = tablesData.filter(table => 
-                (status === "all" || table.status === status) && 
-                (date === "" || table.date === date)
-            );
-            renderFilteredTables(filteredTables);
+        function resetReservations() {
+            tablesData = [];
+            localStorage.removeItem("tablesData");
+            renderTables();
+            updateReservations();
         }
 
-        function renderFilteredTables(filteredTables) {
-            const container = document.getElementById("tables");
-            container.innerHTML = "";
-            filteredTables.forEach(table => {
+        document.getElementById("reservationForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const name = document.getElementById("name").value;
+            const tableNumber = parseInt(document.getElementById("tableNumber").value);
+            const date = document.getElementById("reservationDate").value;
+            const time = document.getElementById("time").value;
+            const people = parseInt(document.getElementById("people").value);
+            const deposit = parseFloat(document.getElementById("deposit").value);
+            const status = document.getElementById("status").value;
+
+            let table = { number: tableNumber, name, date, time, people, deposit, status };
+            tablesData.push(table);
+            localStorage.setItem("tablesData", JSON.stringify(tablesData));
+            renderTables();
+            updateReservations();
+        });
+
+        function updateReservations() {
+            const container = document.getElementById("reservations");
+            container.innerHTML = "<h2>Réservations</h2>";
+            tablesData.sort((a, b) => a.number - b.number).forEach(table => {
                 const div = document.createElement("div");
-                div.className = "table " + (table.status === "R" ? "reserved" : table.status === "Att" ? "pending" : "free");
-                div.innerHTML = `T${table.number}<br>${table.name}<br>${table.people} Pers.<br>${table.time}<br>${table.deposit}€`;
-                div.onclick = () => selectTable(table.number);
+                div.innerHTML = `Table ${table.number} - ${table.name} - ${table.people} pers - ${table.date} - ${table.time} - ${table.deposit}€`;
                 container.appendChild(div);
             });
         }
