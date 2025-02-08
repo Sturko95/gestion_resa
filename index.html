@@ -25,6 +25,8 @@
             color: white;
             cursor: pointer;
             border: 2px solid black;
+            text-align: center;
+            font-size: 0.8rem;
         }
         .reserved { background-color: red; }
         .pending { background-color: orange; }
@@ -47,7 +49,7 @@
         .icon { width: 20px; height: 20px; }
         @media (max-width: 768px) {
             .table-container { grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); }
-            .table { width: 60px; height: 60px; font-size: 0.8rem; }
+            .table { width: 60px; height: 60px; font-size: 0.7rem; }
             input, select, button { font-size: 0.9rem; }
         }
     </style>
@@ -57,10 +59,11 @@
     <h1>Gestion des Réservations</h1>
 
     <form id="reservationForm">
-        <input type="number" id="tableNumber" placeholder="Table" min="1" max="20" required pattern="[0-9]*" inputmode="numeric">
-        <img src="person-icon.png" class="icon"> <input type="number" id="people" min="1" required pattern="[0-9]*" inputmode="numeric">
+        <input type="text" id="name" placeholder="Nom du client" required>
+        <input type="number" id="tableNumber" placeholder="Table" min="1" max="20" required inputmode="numeric">
+        <img src="person-icon.png" class="icon"> <input type="number" id="people" min="1" required inputmode="numeric">
         <input type="time" id="time" step="900" required>
-        <input type="number" id="deposit" placeholder="Acompte (€)" required pattern="[0-9]*" inputmode="numeric">
+        <input type="number" id="deposit" placeholder="Acompte (€)" required inputmode="numeric">
         <select id="status">
             <option value="R">Réservé</option>
             <option value="Att">Attente</option>
@@ -81,7 +84,7 @@
             tablesData.forEach(table => {
                 const div = document.createElement("div");
                 div.className = "table " + (table.status === "R" ? "reserved" : table.status === "Att" ? "pending" : "free");
-                div.innerHTML = `Table ${table.number}`;
+                div.innerHTML = `T${table.number}<br>${table.name}<br>${table.people} Pers.<br>${table.time}<br>${table.deposit}€`;
                 div.onclick = () => selectTable(table.number);
                 container.appendChild(div);
             });
@@ -93,8 +96,8 @@
 
         document.getElementById("reservationForm").addEventListener("submit", function(event) {
             event.preventDefault();
+            const name = document.getElementById("name").value;
             const tableNumber = parseInt(document.getElementById("tableNumber").value);
-            const name = "Réservé";
             const time = document.getElementById("time").value;
             const people = parseInt(document.getElementById("people").value);
             const deposit = parseFloat(document.getElementById("deposit").value);
@@ -115,9 +118,9 @@
         function updateReservations() {
             const container = document.getElementById("reservations");
             container.innerHTML = "<h2>Réservations</h2>";
-            tablesData.filter(t => t.status !== "L").forEach(table => {
+            tablesData.filter(t => t.status !== "L").sort((a, b) => a.number - b.number).forEach(table => {
                 const div = document.createElement("div");
-                div.innerHTML = `Table ${table.number} - ${table.people} personnes - ${table.time} - ${table.deposit}€`;
+                div.innerHTML = `Table ${table.number} - ${table.name} - ${table.people} pers - ${table.time} - ${table.deposit}€`;
                 container.appendChild(div);
             });
         }
