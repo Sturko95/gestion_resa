@@ -1,4 +1,4 @@
-            position: relative;<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -12,8 +12,8 @@
             width: 800px;
             height: 600px;
             margin: auto;
-            background: url('/mnt/data/1692D4B0-FB42-4F27-BF4F-91DDA5FC30C8.jpeg') no-repeat center;
-            background-size: cover;
+            background: url('/mnt/data/PLAN DE TABLE GROS.png') no-repeat center;
+            background-size: contain;
         }
         .table {
             position: absolute;
@@ -43,16 +43,17 @@
     
     <script>
         const tablePositions = [
-            { number: 1, left: '85%', top: '5%' }, { number: 2, left: '80%', top: '5%' }, { number: 3, left: '75%', top: '5%' }, { number: 4, left: '70%', top: '5%' },
-            { number: 5, left: '60%', top: '5%' }, { number: 6, left: '55%', top: '5%' }, { number: 7, left: '50%', top: '5%' },
-            { number: 8, left: '85%', top: '20%' }, { number: 9, left: '80%', top: '20%' }, { number: 10, left: '75%', top: '20%' },
+            { number: 1, left: '80%', top: '10%' }, { number: 2, left: '75%', top: '10%' }, { number: 3, left: '70%', top: '10%' }, { number: 4, left: '65%', top: '10%' },
+            { number: 5, left: '55%', top: '10%' }, { number: 6, left: '50%', top: '10%' }, { number: 7, left: '45%', top: '10%' },
+            { number: 8, left: '80%', top: '20%' }, { number: 9, left: '75%', top: '20%' }, { number: 10, left: '70%', top: '20%' },
             { number: 20, left: '60%', top: '40%' }, { number: 21, left: '65%', top: '40%' }, { number: 22, left: '55%', top: '40%' }, { number: 23, left: '50%', top: '40%' },
             { number: 24, left: '40%', top: '20%' }, { number: 25, left: '40%', top: '25%' }, { number: 26, left: '40%', top: '30%' }, { number: 27, left: '40%', top: '35%' },
             { number: 28, left: '40%', top: '40%' }, { number: 29, left: '40%', top: '45%' }, { number: 30, left: '40%', top: '50%' }, { number: 31, left: '40%', top: '55%' },
             { number: 32, left: '35%', top: '5%' }, { number: 33, left: '30%', top: '5%' }, { number: 34, left: '25%', top: '5%' }, { number: 35, left: '20%', top: '5%' },
-            { number: 36, left: '15%', top: '5%' }, { number: 37, left: '10%', top: '5%' }, { number: 38, left: '5%', top: '5%' },
+            { number: 36, left: '15%', top: '5%' }, { number: 50, left: '10%', top: '30%' }, { number: 51, left: '5%', top: '30%' },
             { number: 48, left: '40%', top: '70%' }, { number: 49, left: '45%', top: '70%' },
-            { number: 50, left: '5%', top: '60%' }, { number: 51, left: '10%', top: '60%' }, { number: 52, left: '5%', top: '65%' }, { number: 53, left: '10%', top: '65%' },
+            { number: 52, left: '10%', top: '40%' }, { number: 53, left: '5%', top: '40%' }, { number: 54, left: '10%', top: '50%' }, { number: 55, left: '5%', top: '50%' },
+            { number: 56, left: '10%', top: '60%' }
         ];
 
         let tablesData = JSON.parse(localStorage.getItem("tablesData")) || tablePositions.map(t => ({ number: t.number, status: "L", name: "", time: "", people: 0, deposit: 0 }));
