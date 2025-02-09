@@ -7,29 +7,30 @@
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 10px; }
         h1 { font-size: 24px; font-weight: bold; }
-        .table-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
+        .plan-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+        }
+        .plan-container img {
+            width: 100%;
+            height: auto;
         }
         .table {
-            width: 100px;
-            height: 100px;
+            position: absolute;
+            width: 40px;
+            height: 40px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
+            border-radius: 5px;
             font-weight: bold;
             color: white;
             cursor: pointer;
             border: 2px solid black;
             text-align: center;
             font-size: 0.8rem;
-            overflow: hidden;
-            word-wrap: break-word;
         }
         .reserved { background-color: red; }
         .pending { background-color: orange; }
@@ -53,11 +54,6 @@
         .reset-btn { margin-top: 10px; padding: 10px 20px; font-size: 1rem; background-color: red; color: white; border: none; cursor: pointer; }
         .reservations-list { margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto; }
         .reservations-list h2 { text-align: center; }
-        @media (max-width: 768px) {
-            .table-container { flex-wrap: wrap; }
-            .table { width: 80px; height: 80px; font-size: 0.7rem; }
-            input, select, button { font-size: 0.9rem; }
-        }
     </style>
 </head>
 <body>
@@ -72,7 +68,7 @@
         <select id="tableNumber" required>
             <option value="">Sélectionner</option>
             <script>
-                for (let i = 1; i <= 20; i++) {
+                for (let i = 1; i <= 56; i++) {
                     document.write(`<option value="${i}">${i}</option>`);
                 }
             </script>
@@ -108,7 +104,10 @@
         <button type="button" class="reset-btn" onclick="resetReservations()">Reset All</button>
     </form>
 
-    <div class="table-container" id="tables"></div>
+    <div class="plan-container">
+        <img src="/mnt/data/1692D4B0-FB42-4F27-BF4F-91DDA5FC30C8.jpeg" alt="Plan de la salle">
+        <div id="tables"></div>
+    </div>
     
     <div class="reservations-list">
         <h2>Réservations Actuelles</h2>
@@ -116,7 +115,7 @@
     </div>
 
     <script>
-        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0, note: "" }));
+        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || Array.from({ length: 56 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0, note: "" }));
 
         function renderTables() {
             const container = document.getElementById("tables");
@@ -124,7 +123,9 @@
             tablesData.forEach(table => {
                 const div = document.createElement("div");
                 div.className = "table " + (table.status === "R" ? "reserved" : table.status === "Att" ? "pending" : "free");
-                div.innerHTML = `T${table.number}<br>${table.name}<br>${table.people} Pers.<br>${table.time}<br>${table.deposit}€`;
+                div.innerHTML = `${table.number}`;
+                div.style.left = `${Math.random() * 80}%`;
+                div.style.top = `${Math.random() * 80}%`;
                 div.onclick = () => selectTable(table.number);
                 container.appendChild(div);
             });
