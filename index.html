@@ -35,21 +35,22 @@
         .pending { background-color: orange; }
         .free { background-color: green; }
         form {
-            margin-top: 20px; 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: center; 
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 10px;
-            max-width: 600px;
+            max-width: 400px;
             margin-left: auto;
             margin-right: auto;
         }
-        input, select, button {
-            padding: 10px; 
-            font-size: 1rem; 
+        input, select, button, textarea {
+            padding: 10px;
+            font-size: 1rem;
             width: 100%;
+            box-sizing: border-box;
         }
-        .reset-btn { margin-top: 20px; padding: 10px 20px; font-size: 1rem; background-color: red; color: white; border: none; cursor: pointer; }
+        .reset-btn { margin-top: 10px; padding: 10px 20px; font-size: 1rem; background-color: red; color: white; border: none; cursor: pointer; }
         @media (max-width: 768px) {
             .table-container { flex-wrap: wrap; }
             .table { width: 80px; height: 80px; font-size: 0.7rem; }
@@ -136,12 +137,28 @@
             }
         }
 
-        function resetReservations() {
-            tablesData = Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0, note: "" }));
-            localStorage.setItem("tablesData", JSON.stringify(tablesData));
-            renderTables();
-            updateReservations();
-        }
+        document.getElementById("reservationForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const name = document.getElementById("name").value;
+            const tableNumber = document.getElementById("tableNumber").value;
+            const time = document.getElementById("time").value;
+            const people = document.getElementById("people").value;
+            const deposit = document.getElementById("deposit").value;
+            const note = document.getElementById("note").value;
+            const status = document.getElementById("status").value;
+
+            let table = tablesData.find(t => t.number == tableNumber);
+            if (table) {
+                table.name = name;
+                table.time = time;
+                table.people = people;
+                table.deposit = deposit;
+                table.note = note;
+                table.status = status;
+                localStorage.setItem("tablesData", JSON.stringify(tablesData));
+                renderTables();
+            }
+        });
 
         window.addEventListener("load", renderTables);
     </script>
