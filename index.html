@@ -51,6 +51,8 @@
             box-sizing: border-box;
         }
         .reset-btn { margin-top: 10px; padding: 10px 20px; font-size: 1rem; background-color: red; color: white; border: none; cursor: pointer; }
+        .reservations-list { margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .reservations-list h2 { text-align: center; }
         @media (max-width: 768px) {
             .table-container { flex-wrap: wrap; }
             .table { width: 80px; height: 80px; font-size: 0.7rem; }
@@ -107,7 +109,11 @@
     </form>
 
     <div class="table-container" id="tables"></div>
-    <div id="reservations"></div>
+    
+    <div class="reservations-list">
+        <h2>Réservations Actuelles</h2>
+        <ul id="reservations"></ul>
+    </div>
 
     <script>
         let tablesData = JSON.parse(localStorage.getItem("tablesData")) || Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0, note: "" }));
@@ -122,19 +128,17 @@
                 div.onclick = () => selectTable(table.number);
                 container.appendChild(div);
             });
+            renderReservations();
         }
 
-        function selectTable(tableNumber) {
-            let table = tablesData.find(t => t.number == tableNumber);
-            if (table) {
-                document.getElementById("tableNumber").value = table.number;
-                document.getElementById("name").value = table.name;
-                document.getElementById("people").value = table.people;
-                document.getElementById("time").value = table.time;
-                document.getElementById("deposit").value = table.deposit;
-                document.getElementById("note").value = table.note;
-                document.getElementById("status").value = table.status;
-            }
+        function renderReservations() {
+            const container = document.getElementById("reservations");
+            container.innerHTML = "";
+            tablesData.filter(t => t.status === "R").sort((a, b) => a.number - b.number).forEach(table => {
+                const li = document.createElement("li");
+                li.textContent = `Table ${table.number} - ${table.name} - ${table.people} pers - ${table.time} - ${table.deposit}€`;
+                container.appendChild(li);
+            });
         }
 
         document.getElementById("reservationForm").addEventListener("submit", function(event) {
