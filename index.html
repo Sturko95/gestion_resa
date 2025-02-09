@@ -9,13 +9,11 @@
         h1 { font-size: 24px; font-weight: bold; }
         .plan-container {
             position: relative;
-            width: 100%;
-            max-width: 800px;
+            width: 800px;
+            height: 600px;
             margin: auto;
-        }
-        .plan-container img {
-            width: 100%;
-            height: auto;
+            background: url('/mnt/data/1692D4B0-FB42-4F27-BF4F-91DDA5FC30C8.jpeg') no-repeat center;
+            background-size: cover;
         }
         .table {
             position: absolute;
@@ -35,137 +33,56 @@
         .reserved { background-color: red; }
         .pending { background-color: orange; }
         .free { background-color: green; }
-        form {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        input, select, button, textarea {
-            padding: 10px;
-            font-size: 1rem;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .reset-btn { margin-top: 10px; padding: 10px 20px; font-size: 1rem; background-color: red; color: white; border: none; cursor: pointer; }
-        .reservations-list { margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto; }
-        .reservations-list h2 { text-align: center; }
     </style>
 </head>
 <body>
     <h1>L'ALCHIMISTE</h1>
     <h2>Gestion des Réservations</h2>
     
-    <form id="reservationForm">
-        <label for="name">Nom :</label>
-        <input type="text" id="name" required>
-        
-        <label for="tableNumber">Table :</label>
-        <select id="tableNumber" required>
-            <option value="">Sélectionner</option>
-            <script>
-                for (let i = 1; i <= 56; i++) {
-                    document.write(`<option value="${i}">${i}</option>`);
-                }
-            </script>
-        </select>
-        
-        <label for="people">Personnes :</label>
-        <select id="people" required>
-            <option value="">Sélectionner</option>
-            <script>
-                for (let i = 1; i <= 20; i++) {
-                    document.write(`<option value="${i}">${i}</option>`);
-                }
-            </script>
-        </select>
-        
-        <label for="time">Horaire :</label>
-        <input type="time" id="time" required>
-        
-        <label for="deposit">Acompte (€) :</label>
-        <input type="number" id="deposit" required>
-        
-        <label for="note">Note :</label>
-        <textarea id="note"></textarea>
-        
-        <label for="status">Statut :</label>
-        <select id="status">
-            <option value="R">Réservé</option>
-            <option value="Att">Attente</option>
-            <option value="L">Libre</option>
-        </select>
-        
-        <button type="submit">Ajouter</button>
-        <button type="button" class="reset-btn" onclick="resetReservations()">Reset All</button>
-    </form>
+    <div class="plan-container" id="plan-container">
+        <script>
+            const tablePositions = [
+                { number: 1, left: '85%', top: '5%' }, { number: 2, left: '80%', top: '5%' }, { number: 3, left: '75%', top: '5%' }, { number: 4, left: '70%', top: '5%' },
+                { number: 5, left: '60%', top: '5%' }, { number: 6, left: '55%', top: '5%' }, { number: 7, left: '50%', top: '5%' },
+                { number: 8, left: '85%', top: '20%' }, { number: 9, left: '80%', top: '20%' }, { number: 10, left: '75%', top: '20%' },
+                { number: 20, left: '60%', top: '40%' }, { number: 21, left: '65%', top: '40%' }, { number: 22, left: '55%', top: '40%' }, { number: 23, left: '50%', top: '40%' },
+                { number: 48, left: '40%', top: '70%' }, { number: 49, left: '45%', top: '70%' },
+                { number: 43, left: '30%', top: '50%' }, { number: 44, left: '35%', top: '50%' }, { number: 45, left: '40%', top: '50%' },
+                { number: 50, left: '5%', top: '60%' }, { number: 51, left: '10%', top: '60%' }, { number: 52, left: '5%', top: '65%' }, { number: 53, left: '10%', top: '65%' },
+            ];
 
-    <div class="plan-container">
-        <img src="/mnt/data/1692D4B0-FB42-4F27-BF4F-91DDA5FC30C8.jpeg" alt="Plan de la salle">
-        <div id="tables"></div>
-    </div>
-    
-    <div class="reservations-list">
-        <h2>Réservations Actuelles</h2>
-        <ul id="reservations"></ul>
-    </div>
+            let tablesData = JSON.parse(localStorage.getItem("tablesData")) || tablePositions.map(t => ({ number: t.number, status: "L", name: "", time: "", people: 0, deposit: 0 }));
 
-    <script>
-        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || Array.from({ length: 56 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0, note: "" }));
-
-        function renderTables() {
-            const container = document.getElementById("tables");
-            container.innerHTML = "";
-            tablesData.forEach(table => {
-                const div = document.createElement("div");
-                div.className = "table " + (table.status === "R" ? "reserved" : table.status === "Att" ? "pending" : "free");
-                div.innerHTML = `${table.number}`;
-                div.style.left = `${Math.random() * 80}%`;
-                div.style.top = `${Math.random() * 80}%`;
-                div.onclick = () => selectTable(table.number);
-                container.appendChild(div);
-            });
-            renderReservations();
-        }
-
-        function renderReservations() {
-            const container = document.getElementById("reservations");
-            container.innerHTML = "";
-            tablesData.filter(t => t.status === "R").sort((a, b) => a.number - b.number).forEach(table => {
-                const li = document.createElement("li");
-                li.textContent = `Table ${table.number} - ${table.name} - ${table.people} pers - ${table.time} - ${table.deposit}€`;
-                container.appendChild(li);
-            });
-        }
-
-        document.getElementById("reservationForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            const name = document.getElementById("name").value;
-            const tableNumber = parseInt(document.getElementById("tableNumber").value);
-            const time = document.getElementById("time").value;
-            const people = parseInt(document.getElementById("people").value);
-            const deposit = parseFloat(document.getElementById("deposit").value);
-            const note = document.getElementById("note").value;
-            const status = document.getElementById("status").value;
-
-            let table = tablesData.find(t => t.number === tableNumber);
-            if (table) {
-                table.name = name;
-                table.time = time;
-                table.people = people;
-                table.deposit = deposit;
-                table.note = note;
-                table.status = status;
+            function renderTables() {
+                const container = document.getElementById("plan-container");
+                container.innerHTML = "";
+                tablesData.forEach(table => {
+                    const tablePos = tablePositions.find(t => t.number === table.number);
+                    if (tablePos) {
+                        const div = document.createElement("div");
+                        div.className = "table " + (table.status === "R" ? "reserved" : table.status === "Att" ? "pending" : "free");
+                        div.innerHTML = `${table.number}`;
+                        div.style.left = tablePos.left;
+                        div.style.top = tablePos.top;
+                        div.onclick = () => selectTable(table.number);
+                        container.appendChild(div);
+                    }
+                });
             }
-            localStorage.setItem("tablesData", JSON.stringify(tablesData));
-            renderTables();
-        });
 
-        window.addEventListener("load", renderTables);
-    </script>
+            function selectTable(tableNumber) {
+                let table = tablesData.find(t => t.number === tableNumber);
+                if (table) {
+                    document.getElementById("tableNumber").value = table.number;
+                    document.getElementById("name").value = table.name;
+                    document.getElementById("people").value = table.people;
+                    document.getElementById("time").value = table.time;
+                    document.getElementById("deposit").value = table.deposit;
+                }
+            }
+
+            window.addEventListener("load", renderTables);
+        </script>
+    </div>
 </body>
 </html>
