@@ -125,7 +125,7 @@
         }
 
         function selectTable(tableNumber) {
-            let table = tablesData.find(t => t.number === tableNumber);
+            let table = tablesData.find(t => t.number == tableNumber);
             if (table) {
                 document.getElementById("tableNumber").value = table.number;
                 document.getElementById("name").value = table.name;
@@ -140,14 +140,14 @@
         document.getElementById("reservationForm").addEventListener("submit", function(event) {
             event.preventDefault();
             const name = document.getElementById("name").value;
-            const tableNumber = document.getElementById("tableNumber").value;
+            const tableNumber = parseInt(document.getElementById("tableNumber").value);
             const time = document.getElementById("time").value;
-            const people = document.getElementById("people").value;
-            const deposit = document.getElementById("deposit").value;
+            const people = parseInt(document.getElementById("people").value);
+            const deposit = parseFloat(document.getElementById("deposit").value);
             const note = document.getElementById("note").value;
             const status = document.getElementById("status").value;
 
-            let table = tablesData.find(t => t.number == tableNumber);
+            let table = tablesData.find(t => t.number === tableNumber);
             if (table) {
                 table.name = name;
                 table.time = time;
@@ -155,9 +155,9 @@
                 table.deposit = deposit;
                 table.note = note;
                 table.status = status;
-                localStorage.setItem("tablesData", JSON.stringify(tablesData));
-                renderTables();
             }
+            localStorage.setItem("tablesData", JSON.stringify(tablesData));
+            renderTables();
         });
 
         window.addEventListener("load", renderTables);
