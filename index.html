@@ -7,33 +7,40 @@
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 10px; }
         h1 { font-size: 24px; font-weight: bold; }
-        .table-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
+        .plan-container {
+            position: relative;
+            width: 900px;
+            height: 600px;
+            margin: auto;
+            background: url('/mnt/data/plan_vierge_grand.JPEG.jpg') no-repeat center;
+            background-size: contain;
+            background-position: center;
         }
         .table {
-            width: 100px;
-            height: 100px;
+            position: absolute;
+            width: 40px;
+            height: 40px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
+            border-radius: 5px;
             font-weight: bold;
             color: white;
             cursor: pointer;
             border: 2px solid black;
             text-align: center;
             font-size: 0.8rem;
-            overflow: hidden;
-            word-wrap: break-word;
         }
         .reserved { background-color: red; }
         .pending { background-color: orange; }
         .free { background-color: green; }
+        .reservation-info {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid black;
+            display: inline-block;
+            background-color: #f9f9f9;
+        }
         form {
             margin-top: 20px;
             display: flex;
@@ -50,37 +57,23 @@
             width: 100%;
             box-sizing: border-box;
         }
-        .reset-btn { margin-top: 10px; padding: 10px 20px; font-size: 1rem; background-color: red; color: white; border: none; cursor: pointer; }
-        .reservations-list { margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto; }
-        .reservations-list h2 { text-align: center; }
-        @media (max-width: 768px) {
-            .table-container { flex-wrap: wrap; }
-            .table { width: 80px; height: 80px; font-size: 0.7rem; }
-            input, select, button { font-size: 0.9rem; }
-        }
     </style>
 </head>
 <body>
     <h1>L'ALCHIMISTE</h1>
     <h2>Gestion des Réservations</h2>
     
+    <div class="plan-container" id="plan-container"></div>
+    
     <form id="reservationForm">
+        <label for="tableNumber">Numéro de Table :</label>
+        <input type="text" id="tableNumber" readonly>
+        
         <label for="name">Nom :</label>
         <input type="text" id="name" required>
         
-        <label for="tableNumber">Table :</label>
-        <select id="tableNumber" required>
-            <option value="">Sélectionner</option>
-            <script>
-                for (let i = 1; i <= 20; i++) {
-                    document.write(`<option value="${i}">${i}</option>`);
-                }
-            </script>
-        </select>
-        
         <label for="people">Personnes :</label>
         <select id="people" required>
-            <option value="">Sélectionner</option>
             <script>
                 for (let i = 1; i <= 20; i++) {
                     document.write(`<option value="${i}">${i}</option>`);
@@ -104,62 +97,62 @@
             <option value="L">Libre</option>
         </select>
         
-        <button type="submit">Ajouter</button>
-        <button type="button" class="reset-btn" onclick="resetReservations()">Reset All</button>
+        <button type="submit">Enregistrer</button>
     </form>
 
-    <div class="table-container" id="tables"></div>
-    
-    <div class="reservations-list">
-        <h2>Réservations Actuelles</h2>
-        <ul id="reservations"></ul>
-    </div>
-
     <script>
-        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || Array.from({ length: 20 }, (_, i) => ({ number: i + 1, status: "L", name: "", time: "", people: 0, deposit: 0, note: "" }));
+        let selectedTable = null;
+        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || [];
+
+        const tablePositions = [
+            { number: 1, left: '10%', top: '10%' }, { number: 2, left: '20%', top: '10%' }, { number: 3, left: '30%', top: '10%' },
+            { number: 4, left: '40%', top: '10%' }, { number: 5, left: '50%', top: '10%' }, { number: 6, left: '60%', top: '10%' },
+        ];
 
         function renderTables() {
-            const container = document.getElementById("tables");
+            const container = document.getElementById("plan-container");
             container.innerHTML = "";
-            tablesData.forEach(table => {
+            tablePositions.forEach(tablePos => {
+                let table = tablesData.find(t => t.number === tablePos.number) || { number: tablePos.number, status: "L", name: "", time: "", people: 0, deposit: 0 };
                 const div = document.createElement("div");
                 div.className = "table " + (table.status === "R" ? "reserved" : table.status === "Att" ? "pending" : "free");
-                div.innerHTML = `T${table.number}<br>${table.name}<br>${table.people} Pers.<br>${table.time}<br>${table.deposit}€`;
-                div.onclick = () => selectTable(table.number);
+                div.innerHTML = `${tablePos.number}`;
+                div.style.left = tablePos.left;
+                div.style.top = tablePos.top;
+                div.onclick = () => selectTable(tablePos.number);
                 container.appendChild(div);
             });
-            renderReservations();
         }
 
-        function renderReservations() {
-            const container = document.getElementById("reservations");
-            container.innerHTML = "";
-            tablesData.filter(t => t.status === "R").sort((a, b) => a.number - b.number).forEach(table => {
-                const li = document.createElement("li");
-                li.textContent = `Table ${table.number} - ${table.name} - ${table.people} pers - ${table.time} - ${table.deposit}€`;
-                container.appendChild(li);
-            });
+        function selectTable(tableNumber) {
+            selectedTable = tablesData.find(t => t.number === tableNumber) || { number: tableNumber, status: "L", name: "", time: "", people: 0, deposit: 0 };
+            document.getElementById("tableNumber").value = selectedTable.number;
+            document.getElementById("name").value = selectedTable.name;
+            document.getElementById("people").value = selectedTable.people;
+            document.getElementById("time").value = selectedTable.time;
+            document.getElementById("deposit").value = selectedTable.deposit;
+            document.getElementById("note").value = selectedTable.note;
+            document.getElementById("status").value = selectedTable.status;
         }
 
         document.getElementById("reservationForm").addEventListener("submit", function(event) {
             event.preventDefault();
-            const name = document.getElementById("name").value;
-            const tableNumber = parseInt(document.getElementById("tableNumber").value);
-            const time = document.getElementById("time").value;
-            const people = parseInt(document.getElementById("people").value);
-            const deposit = parseFloat(document.getElementById("deposit").value);
-            const note = document.getElementById("note").value;
-            const status = document.getElementById("status").value;
+            if (!selectedTable) return;
 
-            let table = tablesData.find(t => t.number === tableNumber);
-            if (table) {
-                table.name = name;
-                table.time = time;
-                table.people = people;
-                table.deposit = deposit;
-                table.note = note;
-                table.status = status;
+            selectedTable.name = document.getElementById("name").value;
+            selectedTable.people = document.getElementById("people").value;
+            selectedTable.time = document.getElementById("time").value;
+            selectedTable.deposit = document.getElementById("deposit").value;
+            selectedTable.note = document.getElementById("note").value;
+            selectedTable.status = document.getElementById("status").value;
+
+            let existingIndex = tablesData.findIndex(t => t.number === selectedTable.number);
+            if (existingIndex !== -1) {
+                tablesData[existingIndex] = selectedTable;
+            } else {
+                tablesData.push(selectedTable);
             }
+
             localStorage.setItem("tablesData", JSON.stringify(tablesData));
             renderTables();
         });
@@ -168,3 +161,4 @@
     </script>
 </body>
 </html>
+
