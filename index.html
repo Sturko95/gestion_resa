@@ -9,8 +9,9 @@
         h1 { font-size: 24px; font-weight: bold; }
         .plan-container {
             position: relative;
-            width: 800px;
-            height: 600px;
+            width: 100%;
+            max-width: 900px;
+            height: auto;
             margin: auto;
             background: url('/mnt/data/plan_vierge_grand.JPEG.jpg') no-repeat center;
             background-size: contain;
@@ -65,6 +66,9 @@
     <div class="plan-container" id="plan-container"></div>
     
     <form id="reservationForm">
+        <label for="tableNumber">Numéro de Table :</label>
+        <input type="number" id="tableNumber" disabled>
+        
         <label for="name">Nom :</label>
         <input type="text" id="name" required>
         
@@ -117,6 +121,7 @@
 
         function selectTable(tableNumber) {
             selectedTable = tablesData.find(t => t.number === tableNumber) || { number: tableNumber, status: "L", name: "", time: "", people: 0, deposit: 0 };
+            document.getElementById("tableNumber").value = selectedTable.number;
             document.getElementById("name").value = selectedTable.name;
             document.getElementById("people").value = selectedTable.people;
             document.getElementById("time").value = selectedTable.time;
