@@ -41,7 +41,45 @@
     
     <div class="plan-container" id="plan-container"></div>
     
+    <form id="reservationForm">
+        <label for="tableNumber">Numéro de Table :</label>
+        <input type="text" id="tableNumber" readonly>
+        
+        <label for="name">Nom :</label>
+        <input type="text" id="name" required>
+        
+        <label for="people">Personnes :</label>
+        <select id="people" required>
+            <script>
+                for (let i = 1; i <= 20; i++) {
+                    document.write(`<option value="${i}">${i}</option>`);
+                }
+            </script>
+        </select>
+        
+        <label for="time">Horaire :</label>
+        <input type="time" id="time" required>
+        
+        <label for="deposit">Acompte (€) :</label>
+        <input type="number" id="deposit" required>
+        
+        <label for="note">Note :</label>
+        <textarea id="note"></textarea>
+        
+        <label for="status">Statut :</label>
+        <select id="status">
+            <option value="R">Réservé</option>
+            <option value="Att">Attente</option>
+            <option value="L">Libre</option>
+        </select>
+        
+        <button type="submit">Enregistrer</button>
+    </form>
+
     <script>
+        let selectedTable = null;
+        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || [];
+
         const tablePositions = [
             { number: 1, left: '90%', top: '5%' }, { number: 2, left: '85%', top: '5%' }, { number: 3, left: '80%', top: '5%' }, { number: 4, left: '75%', top: '5%' },
             { number: 5, left: '65%', top: '5%' }, { number: 6, left: '60%', top: '5%' }, { number: 7, left: '55%', top: '5%' },
@@ -66,7 +104,7 @@
                 div.innerHTML = `${tablePos.number}`;
                 div.style.left = tablePos.left;
                 div.style.top = tablePos.top;
-                div.onclick = () => alert(`Table ${tablePos.number} sélectionnée`);
+                div.onclick = () => selectTable(tablePos.number);
                 container.appendChild(div);
             });
         }
