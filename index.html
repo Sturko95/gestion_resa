@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -9,7 +11,7 @@
         h1 { font-size: 24px; font-weight: bold; }
         .plan-container {
             position: relative;
-            width: 900px;
+            width: 800px;
             height: 600px;
             margin: auto;
             background: url('/mnt/data/plan_vierge_grand.JPEG.jpg') no-repeat center;
@@ -40,22 +42,6 @@
             display: inline-block;
             background-color: #f9f9f9;
         }
-        form {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        input, select, button, textarea {
-            padding: 10px;
-            font-size: 1rem;
-            width: 100%;
-            box-sizing: border-box;
-        }
     </style>
 </head>
 <body>
@@ -64,92 +50,55 @@
     
     <div class="plan-container" id="plan-container"></div>
     
-    <form id="reservationForm">
-        <label for="tableNumber">Numéro de Table :</label>
-        <input type="number" id="tableNumber" readonly>
-        
-        <label for="name">Nom :</label>
-        <input type="text" id="name" required>
-        
-        <label for="people">Personnes :</label>
-        <select id="people" required>
-            <script>
-                for (let i = 1; i <= 20; i++) {
-                    document.write(`<option value="${i}">${i}</option>`);
-                }
-            </script>
-        </select>
-        
-        <label for="time">Horaire :</label>
-        <input type="time" id="time" required>
-        
-        <label for="deposit">Acompte (€) :</label>
-        <input type="number" id="deposit" required>
-        
-        <label for="note">Note :</label>
-        <textarea id="note"></textarea>
-        
-        <label for="status">Statut :</label>
-        <select id="status">
-            <option value="R">Réservé</option>
-            <option value="Att">Attente</option>
-            <option value="L">Libre</option>
-        </select>
-        
-        <button type="submit">Enregistrer</button>
-    </form>
-
+    <div class="reservation-info" id="reservation-info">
+        <h3>Détails de la Réservation</h3>
+        <p id="info-text">Cliquez sur une table pour voir les informations.</p>
+    </div>
+    
     <script>
-        let selectedTable = null;
-        let tablesData = JSON.parse(localStorage.getItem("tablesData")) || [];
+        const tablePositions = [
+            { number: 1, left: '90%', top: '5%' }, { number: 2, left: '85%', top: '5%' }, { number: 3, left: '80%', top: '5%' }, { number: 4, left: '75%', top: '5%' },
+            { number: 5, left: '65%', top: '5%' }, { number: 6, left: '60%', top: '5%' }, { number: 7, left: '55%', top: '5%' },
+            { number: 8, left: '90%', top: '20%' }, { number: 9, left: '85%', top: '20%' }, { number: 10, left: '80%', top: '20%' },
+            { number: 20, left: '60%', top: '20%' }, { number: 21, left: '55%', top: '20%' }, { number: 22, left: '55%', top: '30%' }, { number: 23, left: '60%', top: '30%' },
+            { number: 24, left: '45%', top: '20%' }, { number: 25, left: '45%', top: '27%' }, { number: 26, left: '45%', top: '34%' }, { number: 27, left: '45%', top: '41%' },
+            { number: 28, left: '45%', top: '48%' }, { number: 30, left: '35%', top: '5%' }, { number: 31, left: '30%', top: '5%' }, { number: 32, left: '25%', top: '5%' },
+            { number: 33, left: '25%', top: '15%' }, { number: 34, left: '25%', top: '22%' }, { number: 35, left: '25%', top: '29%' }, { number: 51, left: '25%', top: '38%' },
+            { number: 52, left: '25%', top: '45%' }, { number: 53, left: '25%', top: '52%' }, { number: 54, left: '25%', top: '67%' }, { number: 55, left: '25%', top: '74%' },
+            { number: 36, left: '30%', top: '29%' }, { number: 50, left: '30%', top: '38%' }, { number: 56, left: '30%', top: '74%' },
+            { number: 40, left: '45%', top: '60%' }, { number: 41, left: '45%', top: '67%' }, { number: 42, left: '45%', top: '74%' },
+            { number: 43, left: '55%', top: '60%' }, { number: 44, left: '60%', top: '60%' }, { number: 45, left: '65%', top: '60%' }, { number: 46, left: '75%', top: '60%' },
+            { number: 47, left: '75%', top: '70%' }, { number: 48, left: '60%', top: '70%' }, { number: 49, left: '55%', top: '70%' }
+        ];
+
+        let tablesData = tablePositions.map(t => ({ number: t.number, status: "L", name: "", time: "", people: 0, deposit: 0 }));
 
         function renderTables() {
             const container = document.getElementById("plan-container");
             container.innerHTML = "";
             tablePositions.forEach(tablePos => {
-                let table = tablesData.find(t => t.number === tablePos.number) || { number: tablePos.number, status: "L", name: "", time: "", people: 0, deposit: 0 };
+                let table = tablesData.find(t => t.number === tablePos.number) || { status: "L" };
                 const div = document.createElement("div");
                 div.className = "table " + (table.status === "R" ? "reserved" : table.status === "Att" ? "pending" : "free");
                 div.innerHTML = `${tablePos.number}`;
                 div.style.left = tablePos.left;
                 div.style.top = tablePos.top;
-                div.onclick = () => selectTable(table.number);
+                div.onclick = () => selectTable(tablePos.number);
                 container.appendChild(div);
             });
         }
 
         function selectTable(tableNumber) {
-            selectedTable = tablesData.find(t => t.number === tableNumber) || { number: tableNumber, status: "L", name: "", time: "", people: 0, deposit: 0 };
-            document.getElementById("tableNumber").value = selectedTable.number;
-            document.getElementById("name").value = selectedTable.name;
-            document.getElementById("people").value = selectedTable.people;
-            document.getElementById("time").value = selectedTable.time;
-            document.getElementById("deposit").value = selectedTable.deposit;
-            document.getElementById("note").value = selectedTable.note;
-            document.getElementById("status").value = selectedTable.status;
-        }
-
-        document.getElementById("reservationForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            if (!selectedTable) return;
-
-            selectedTable.name = document.getElementById("name").value;
-            selectedTable.people = document.getElementById("people").value;
-            selectedTable.time = document.getElementById("time").value;
-            selectedTable.deposit = document.getElementById("deposit").value;
-            selectedTable.note = document.getElementById("note").value;
-            selectedTable.status = document.getElementById("status").value;
-
-            let existingIndex = tablesData.findIndex(t => t.number === selectedTable.number);
-            if (existingIndex !== -1) {
-                tablesData[existingIndex] = selectedTable;
-            } else {
-                tablesData.push(selectedTable);
+            let table = tablesData.find(t => t.number === tableNumber);
+            if (table) {
+                document.getElementById("info-text").innerHTML = `
+                    <strong>Table ${table.number}</strong><br>
+                    Nom: ${table.name || "Non réservé"}<br>
+                    Personnes: ${table.people || "-"}<br>
+                    Horaire: ${table.time || "-"}<br>
+                    Acompte: ${table.deposit ? table.deposit + "€" : "-"}`;
             }
-
-            localStorage.setItem("tablesData", JSON.stringify(tablesData));
-            renderTables();
-        });
+        }
 
         window.addEventListener("load", renderTables);
     </script>
