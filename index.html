@@ -33,6 +33,13 @@
         .reserved { background-color: red; }
         .pending { background-color: orange; }
         .free { background-color: green; }
+        .reservation-info {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid black;
+            display: inline-block;
+            background-color: #f9f9f9;
+        }
     </style>
 </head>
 <body>
@@ -40,6 +47,11 @@
     <h2>Gestion des Réservations</h2>
     
     <div class="plan-container" id="plan-container"></div>
+    
+    <div class="reservation-info" id="reservation-info">
+        <h3>Détails de la Réservation</h3>
+        <p id="info-text">Cliquez sur une table pour voir les informations.</p>
+    </div>
     
     <script>
         const tablePositions = [
@@ -80,7 +92,12 @@
         function selectTable(tableNumber) {
             let table = tablesData.find(t => t.number === tableNumber);
             if (table) {
-                alert(`Table ${table.number}\nNom: ${table.name}\nPersonnes: ${table.people}\nHoraire: ${table.time}\nAcompte: ${table.deposit}€`);
+                document.getElementById("info-text").innerHTML = `
+                    <strong>Table ${table.number}</strong><br>
+                    Nom: ${table.name || "Non réservé"}<br>
+                    Personnes: ${table.people || "-"}<br>
+                    Horaire: ${table.time || "-"}<br>
+                    Acompte: ${table.deposit ? table.deposit + "€" : "-"}`;
             }
         }
 
